@@ -1,0 +1,58 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6 space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-800">Past Coaching Sessions</h1>
+      <%= link_to "Back to Home", root_path, class: "text-blue-600 hover:text-blue-800" %>
+    </div>
+
+    <div class="mt-4">
+      <% if @slots.any? %>
+        <div class="space-y-4">
+          <% @slots.each do |slot| %>
+            <div class="border p-4 rounded-lg">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-semibold"><%= slot.start_time.strftime("%A, %B %d, %Y") %></p>
+                  <p><%= slot.start_time.strftime("%I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></p>
+                  
+                  <% if slot.student %>
+                    <p class="mt-2">
+                      <strong>Student:</strong> <%= slot.student.name %> | 
+                      <span class="text-gray-600">📞 <%= slot.student.phone_number %></span>
+                    </p>
+                  <% else %>
+                    <p class="mt-2 text-gray-500 italic">No student booked this slot</p>
+                  <% end %>
+                </div>
+                
+                <div class="text-right">
+                  <% if slot.satisfaction_score.present? %>
+                    <p class="text-lg">
+                      <span class="font-semibold">Rating:</span> 
+                      <%= "⭐" * slot.satisfaction_score %>
+                    </p>
+                  <% else %>
+                    <% if slot.student.present? %>
+                      <%= link_to "Record Notes", new_slot_note_path(slot), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+                    <% else %>
+                      <span class="text-gray-500 italic">No notes needed</span>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              
+              <% if slot.notes.present? %>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                  <p class="font-semibold">Session Notes:</p>
+                  <p class="text-gray-700 italic"><%= slot.notes %></p>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 italic">You don't have any past coaching sessions yet.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

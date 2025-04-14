@@ -1,0 +1,67 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6 space-y-6">
+
+    <h1 class="text-2xl font-bold text-gray-800">Welcome, <%= current_user.name %>!</h1>
+
+    <%= render 'shared/header' %>
+
+    <% if current_user.role == "coach" %>
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-semibold mt-6">Upcoming Slots</h2>
+        <div class="space-x-2">
+          <%= link_to "Add Availability", new_slot_path(user_id: current_user.id), class: "bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" %>
+          <%= link_to "View All Slots", slots_path(user_id: current_user.id), class: "bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700" %>
+          <%= link_to "Past Sessions", past_sessions_slots_path(user_id: current_user.id), class: "bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700" %>
+        </div>
+      </div>
+      <% current_user.coach_slots.upcoming.each do |slot| %>
+        <div class="border p-4 rounded-lg flex justify-between items-center">
+          <div>
+            <p><strong><%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></strong></p>
+            <% if slot.student %>
+              <p>📞 <%= slot.student.phone_number %></p>
+            <% else %>
+              <p class="text-gray-500 italic">Not booked yet</p>
+            <% end %>
+          </div>
+          <div class="flex space-x-2">
+            <%= link_to "View", slot_path(slot, user_id: current_user.id), class: "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600" %>
+            <% if slot.student %>
+              <%= link_to "Record Notes", new_slot_note_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+            <% else %>
+              <%= link_to "Edit", edit_slot_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <h2 class="text-xl font-semibold mt-6">Past Sessions</h2>
+      <% current_user.coach_slots.past.each do |slot| %>
+        <% next unless slot.notes.present? %>
+        <div class="border p-4 rounded-lg">
+          <p><strong><%= slot.start_time.strftime("%b %d") %></strong> | Score: ⭐ <%= slot.satisfaction_score %></p>
+          <p class="text-sm text-gray-700 italic">"<%= slot.notes %>"</p>
+        </div>
+      <% end %>
+
+    <% else %>
+      <h2 class="text-xl font-semibold mt-6">Available Slots</h2>
+      <% Slot.available.each do |slot| %>
+        <div class="border p-4 rounded-lg flex justify-between items-center">
+          <div>
+            <p><strong><%= slot.coach.name %></strong> | <%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></p>
+          </div>
+          <%= link_to "Book Now", book_slot_path(slot, user_id: current_user.id), class: "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600" %>
+        </div>
+      <% end %>
+
+      <h2 class="text-xl font-semibold mt-6">Your Bookings</h2>
+      <% current_user.student_slots.each do |slot| %>
+        <div class="border p-4 rounded-lg">
+          <p><strong>Coach: <%= slot.coach.name %></strong> | <%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></p>
+          <p>📞 <%= slot.coach.phone_number %></p>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

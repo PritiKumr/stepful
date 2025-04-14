@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6 space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-800">My Availability Slots</h1>
+      <%= link_to "Add New Slot", new_slot_path, class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+    </div>
+
+    <div class="mt-4">
+      <% if @slots.any? %>
+        <div class="space-y-4">
+          <% @slots.each do |slot| %>
+            <div class="border p-4 rounded-lg flex justify-between items-center">
+              <div>
+                <p><strong><%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></strong></p>
+                <% if slot.student %>
+                  <p>Booked by: <%= slot.student.name %> | 📞 <%= slot.student.phone_number %></p>
+                <% else %>
+                  <p class="text-gray-500 italic">Not booked yet</p>
+                <% end %>
+              </div>
+              <div class="flex space-x-2">
+                <%= link_to "View", slot_path(slot), class: "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600" %>
+                <% unless slot.student %>
+                  <%= link_to "Edit", edit_slot_path(slot), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-gray-500 italic">You don't have any upcoming availability slots. Add some to get started!</p>
+      <% end %>
+    </div>
+
+    <div class="mt-4">
+      <%= link_to "Back to Home", root_path, class: "text-blue-600 hover:text-blue-800" %>
+    </div>
+  </div>
+</div>

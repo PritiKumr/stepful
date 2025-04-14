@@ -1,0 +1,35 @@
+<div class="min-h-screen bg-gray-100 p-8">
+  <div class="max-w-3xl mx-auto bg-white shadow rounded-xl p-6 space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-gray-800">Book Coaching Session</h1>
+      <%= link_to "Back", root_path(user_id: current_user.id), class: "text-blue-600 hover:text-blue-800" %>
+    </div>
+
+    <div class="border p-4 rounded-lg">
+      <p class="text-lg font-semibold">
+        <%= @slot.start_time.strftime("%A, %B %d, %Y") %>
+      </p>
+      <p>
+        <strong>Time:</strong> <%= @slot.start_time.strftime("%I:%M%p") %> – <%= @slot.end_time.strftime("%I:%M%p") %>
+      </p>
+      <p>
+        <strong>Coach:</strong> <%= @slot.coach.name %>
+      </p>
+      
+      <div class="mt-6 bg-blue-50 p-4 rounded-lg">
+        <p class="font-semibold">Important Information:</p>
+        <p>By booking this slot, you agree to:</p>
+        <ul class="list-disc list-inside mt-2">
+          <li>Be available for the entire 2-hour session</li>
+          <li>Share your phone number with the coach</li>
+          <li>Provide feedback after the session</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="flex justify-center">
+      <%= button_to "Confirm Booking", confirm_booking_slot_path(@slot, user_id: current_user.id), method: :patch, 
+          class: "bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" %>
+    </div>
+  </div>
+</div>
