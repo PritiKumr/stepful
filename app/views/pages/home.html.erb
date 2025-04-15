@@ -7,40 +7,65 @@
 
     <% if current_user.role == "coach" %>
       <div class="flex justify-between items-center">
-        <h2 class="text-xl font-semibold mt-6">Upcoming Slots</h2>
+        <h2 class="text-xl font-semibold mt-6">Available Slots</h2>
         <div class="space-x-2">
           <%= link_to "Add Availability", new_slot_path(user_id: current_user.id), class: "bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700" %>
           <%= link_to "View All Slots", slots_path(user_id: current_user.id), class: "bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700" %>
           <%= link_to "Past Sessions", past_sessions_slots_path(user_id: current_user.id), class: "bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700" %>
         </div>
       </div>
-      <% current_user.coach_slots.upcoming.each do |slot| %>
+      <% current_user.coach_slots.upcoming.where(student_id: nil).each do |slot| %>
         <div class="border p-4 rounded-lg flex justify-between items-center">
           <div>
             <p><strong><%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></strong></p>
-            <% if slot.student %>
-              <p>📞 <%= slot.student.phone_number %></p>
-            <% else %>
-              <p class="text-gray-500 italic">Not booked yet</p>
-            <% end %>
+            <p class="text-gray-500 italic">Not booked yet</p>
           </div>
           <div class="flex space-x-2">
             <%= link_to "View", slot_path(slot, user_id: current_user.id), class: "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600" %>
-            <% if slot.student %>
-              <%= link_to "Record Notes", new_slot_note_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
-            <% else %>
-              <%= link_to "Edit", edit_slot_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
-            <% end %>
+            <%= link_to "Edit", edit_slot_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
           </div>
         </div>
+      <% end %>
+      
+      <% if current_user.coach_slots.upcoming.where.not(student_id: nil).any? %>
+        <h2 class="text-xl font-semibold mt-6">Upcoming Booked Sessions</h2>
+        <% current_user.coach_slots.upcoming.where.not(student_id: nil).each do |slot| %>
+          <div class="border p-4 rounded-lg flex justify-between items-center">
+            <div>
+              <p><strong><%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></strong></p>
+              <p><strong>Student:</strong> <%= slot.student.name %></p>
+              <p>📞 <%= slot.student.phone_number %></p>
+            </div>
+            <div class="flex space-x-2">
+              <%= link_to "View", slot_path(slot, user_id: current_user.id), class: "bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600" %>
+            </div>
+          </div>
+        <% end %>
       <% end %>
 
       <h2 class="text-xl font-semibold mt-6">Past Sessions</h2>
       <% current_user.coach_slots.past.each do |slot| %>
-        <% next unless slot.notes.present? %>
         <div class="border p-4 rounded-lg">
-          <p><strong><%= slot.start_time.strftime("%b %d") %></strong> | Score: ⭐ <%= slot.satisfaction_score %></p>
-          <p class="text-sm text-gray-700 italic">"<%= slot.notes %>"</p>
+          <div class="flex justify-between items-center">
+            <div>
+              <p><strong><%= slot.start_time.strftime("%b %d") %></strong>
+                <% if slot.satisfaction_score.present? %>
+                  | Score: ⭐ <%= slot.satisfaction_score %>
+                <% end %>
+              </p>
+              <% if slot.student.present? %>
+                <p><strong>Student:</strong> <%= slot.student.name %> | 📞 <%= slot.student.phone_number %></p>
+              <% end %>
+              <% if slot.notes.present? %>
+                <p class="text-sm text-gray-700 italic">"<%= slot.notes %>"</p>
+              <% end %>
+            </div>
+            <% if !slot.notes.present? %>
+              <div>
+                <%= link_to "Record Notes", new_slot_note_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
 
@@ -55,11 +80,34 @@
         </div>
       <% end %>
 
-      <h2 class="text-xl font-semibold mt-6">Your Bookings</h2>
-      <% current_user.student_slots.each do |slot| %>
+      <h2 class="text-xl font-semibold mt-6">Your Upcoming Bookings</h2>
+      <% current_user.student_slots.upcoming.each do |slot| %>
         <div class="border p-4 rounded-lg">
           <p><strong>Coach: <%= slot.coach.name %></strong> | <%= slot.start_time.strftime("%b %d, %I:%M%p") %> – <%= slot.end_time.strftime("%I:%M%p") %></p>
           <p>📞 <%= slot.coach.phone_number %></p>
+        </div>
+      <% end %>
+      
+      <h2 class="text-xl font-semibold mt-6">Your Past Sessions</h2>
+      <% current_user.student_slots.past.each do |slot| %>
+        <div class="border p-4 rounded-lg">
+          <div class="flex justify-between items-center">
+            <div>
+              <p><strong>Coach: <%= slot.coach.name %></strong> | <%= slot.start_time.strftime("%b %d") %></p>
+              <p>📞 <%= slot.coach.phone_number %></p>
+              <% if slot.notes.present? %>
+                <p class="text-sm text-gray-700 italic">"<%= slot.notes %>"</p>
+                <% if slot.satisfaction_score.present? %>
+                  <p>Your Rating: ⭐ <%= slot.satisfaction_score %></p>
+                <% end %>
+              <% end %>
+            </div>
+            <% if !slot.notes.present? %>
+              <div>
+                <%= link_to "Record Notes & Rate", new_slot_note_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
+              </div>
+            <% end %>
+          </div>
         </div>
       <% end %>
     <% end %>
