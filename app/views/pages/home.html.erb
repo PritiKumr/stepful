@@ -102,11 +102,6 @@
                 <% end %>
               <% end %>
             </div>
-            <% if !slot.notes.present? %>
-              <div>
-                <%= link_to "Record Notes & Rate", new_slot_note_path(slot, user_id: current_user.id), class: "bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600" %>
-              </div>
-            <% end %>
           </div>
         </div>
       <% end %>
